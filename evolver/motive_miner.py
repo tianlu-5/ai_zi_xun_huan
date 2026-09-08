@@ -180,9 +180,6 @@ class MotiveCostMiner:
         self._save(result)
         return result
 
-    def _call_stage(self, prompt: str) -> Optional[Dict[str, Any]]:
-        return self._call_llm(prompt)
-
     def _call_llm(self, prompt: str) -> Optional[Dict[str, Any]]:
         try:
             result = self.client.chat_with_structured_output(
@@ -193,51 +190,6 @@ class MotiveCostMiner:
         except Exception as e:
             print(f"[Miner] 阶段调用失败: {e}")
             return None
-
-    def _call_llm(self, prompt: str) -> Optional[Dict[str, Any]]:
-        try:
-            result = self.client.chat_with_structured_output(
-                user_message=prompt,
-                system_prompt="你是一个严谨的分析专家。严格按 JSON 格式输出，不要添加任何额外文字。",
-            )
-            return result
-        except Exception as e:
-            print(f"[Miner] 阶段调用失败: {e}")
-            return None
-
-    def _call_llm(self, prompt: str) -> Optional[Dict[str, Any]]:
-        try:
-            result = self.client.chat_with_structured_output(
-                user_message=prompt,
-                system_prompt="你是一个严谨的分析专家。严格按 JSON 格式输出，不要添加任何额外文字。",
-            )
-            return result
-        except Exception as e:
-            print(f"[Miner] 阶段调用失败: {e}")
-            return None
-
-    def _extract_high_cost_flags(self, cost_data: Dict) -> List[str]:
-        flags = []
-        cognitive = cost_data.get("cognitive_cost", {})
-
-        ignored = cognitive.get("ignored_phenomena", [])
-        if isinstance(ignored, list) and len(ignored) >= 3:
-            flags.append(f"忽略了 {len(ignored)} 种现象")
-
-        simplifications = cognitive.get("simplifications", [])
-        if isinstance(simplifications, list) and len(simplifications) >= 2:
-            flags.append(f"使用了 {len(simplifications)} 处简化假设")
-
-        ontology = cost_data.get("implicit_ontology", {})
-        premises = ontology.get("unspoken_premises", [])
-        if isinstance(premises, list) and len(premises) >= 2:
-            flags.append(f"依赖 {len(premises)} 个未明说的底层前提")
-
-        score = cost_data.get("total_cost_score", 0)
-        if isinstance(score, (int, float)) and score >= 0.6:
-            flags.append(f"总认知代价 {score:.2f}（偏高）")
-
-        return flags
 
     def mine_simple(self, input_text: str) -> str:
         """简化版：直接输出反向分析文本（不用三段式 JSON 流水线）"""
@@ -370,42 +322,6 @@ class MotiveCostMiner:
 
     def _optimize_stage1_theory(self, theory: Dict[str, Any]) -> Dict[str, Any]:
         return theory
-
-    def _optimize_stage2_cost(self, cost: Dict[str, Any]) -> Dict[str, Any]:
-        return cost
-
-    def _optimize_stage3_counters(self, counters: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        return counters
-
-    def _calculate_total_cost_score(self) -> float:
-        return 0.0
-
-    def _optimize_stage2_cost(self, cost: Dict[str, Any]) -> Dict[str, Any]:
-        return cost
-
-    def _optimize_stage3_counters(self, counters: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        return counters
-
-    def _calculate_total_cost_score(self) -> float:
-        return 0.0
-
-    def _optimize_stage2_cost(self, cost: Dict[str, Any]) -> Dict[str, Any]:
-        return cost
-
-    def _optimize_stage3_counters(self, counters: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        return counters
-
-    def _calculate_total_cost_score(self) -> float:
-        return 0.0
-
-    def _optimize_stage2_cost(self, cost: Dict[str, Any]) -> Dict[str, Any]:
-        return cost
-
-    def _optimize_stage3_counters(self, counters: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        return counters
-
-    def _calculate_total_cost_score(self) -> float:
-        return 0.0
 
     def _optimize_stage2_cost(self, cost: Dict[str, Any]) -> Dict[str, Any]:
         """优化阶段2代价挖掘"""

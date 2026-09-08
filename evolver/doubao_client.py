@@ -64,7 +64,8 @@ class DoubaoClient:
             return self._temperature
 
     def __init__(self, api_key: str = "", base_url: str = "", model_id: str = "",
-                 temperature: float = 0.2, max_tokens: int = 8192):
+                 temperature: float = 0.2, max_tokens: int = 8192,
+                 backend_id: Optional[str] = None):
         """
         初始化豆包客户端
         :param api_key: 火山方舟API Key
@@ -72,6 +73,7 @@ class DoubaoClient:
         :param model_id: 使用的模型ID
         :param temperature: 生成温度
         :param max_tokens: 最大生成token数
+        :param backend_id: 后端标识（用于路由器追踪）
         """
         
         # 延迟导入，避免未安装SDK时报错

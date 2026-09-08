@@ -1211,11 +1211,47 @@ class AutonomousDaemon:
         关键设计：AI 只需生成新方法的完整代码，不需要精确复制旧代码做 old_str。
         系统用 AST 自动找到类末尾并插入方法，彻底消除 old_str 幻觉问题。
         """
+        # ★ 反盲改：附带目标文件真实结构（真实类 + 已有方法清单），
+        #   让 AI 描述对象是实际代码而非固定路由文案，减少与现有方法撞名/重复。
+        extra = ""
+        try:
+            import ast as _a2, difflib as _df
+            rel = file_path
+            if rel.startswith("evolver/"):
+                rel = rel[len("evolver/"):]
+            fp = PROJECT_ROOT / rel
+            if fp.exists():
+                tree = _a2.parse(fp.read_text(encoding="utf-8"))
+                classes = [n.name for n in tree.body if isinstance(n, _a2.ClassDef)]
+                if classes:
+                    stem = fp.stem.replace("_", "").lower()
+                    best = max(
+                        classes,
+                        key=lambda c: _df.SequenceMatcher(None, c.lower(), stem).ratio(),
+                    )
+                    methods = []
+                    for n in tree.body:
+                        if isinstance(n, _a2.ClassDef) and n.name == best:
+                            methods = [
+                                m.name for m in n.body
+                                if isinstance(m, (_a2.FunctionDef, _a2.AsyncFunctionDef))
+                            ]
+                            break
+                    extra = (
+                        "\n目标文件真实结构参考（务必基于此，避免新增重复方法）：\n"
+                        "  实际类名: " + best + "\n"
+                        "  该类已存在方法: " + (", ".join(methods) if methods else "(暂无)")
+                        + "\n"
+                    )
+        except Exception:
+            pass
+
         return (
             "现在你只能够处理 " + file_path + "\n"
             "任务：在 " + class_name + " 类中新增一个方法 " + method_name + "\n"
             "行为要求：" + behavior_desc + "\n"
             "参考风格：" + ref_style + "\n"
+            + extra +
             "输出格式：使用 insert_method action，只需提供 method_code（新方法的完整代码），\n"
             "  不需要 old_str / new_str，系统会自动用 AST 插入到类末尾。\n"
             "  method_code 中必须包含 def 行和 docstring 文档字符串。\n"

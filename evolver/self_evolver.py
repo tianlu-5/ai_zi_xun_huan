@@ -624,7 +624,10 @@ class SelfEvolver:
                             modified_files, self.current_iteration, failure_type=f_type)
 
                         # ── 2.3 自动 Stub 生成：missing_method 时尝试 auto_stub ──
-                        if f_type == "missing_method":
+                        # [反腐化] 已禁用：auto_stub 会把"空 stub"追加到模块文件末尾，
+                        #    造成重复/空函数覆写真实逻辑（本会话曾在 4 个文件里清掉数百行）。
+                        #    修复 missing_method 应交给模型产真实实现，而不是落盘 pass stub。
+                        if False and f_type == "missing_method":
                             try:
                                 from capability_registry import CapabilityRegistry
                                 reg = CapabilityRegistry()
@@ -1161,11 +1164,15 @@ class SelfEvolver:
         return []
 
     def _save_iteration_log(self, result: Dict):
-        """保存本次迭代日志"""
+        """保存本次迭代日志（原子写：临时文件 + os.replace，防止并发/中断导致 JSON 损坏）"""
         self.iteration_logs.append(result)
         try:
-            with open(Config.EVOLUTION_LOG, "w", encoding="utf-8") as f:
+            import os as _os
+            Config.EVOLUTION_LOG.parent.mkdir(parents=True, exist_ok=True)
+            tmp = Config.EVOLUTION_LOG.with_suffix(".json.tmp")
+            with open(tmp, "w", encoding="utf-8") as f:
                 json.dump(self.iteration_logs, f, ensure_ascii=False, indent=2, default=str)
+            _os.replace(tmp, Config.EVOLUTION_LOG)
         except Exception as e:
             print(f"[警告] 保存迭代日志失败: {e}")
 

@@ -546,6 +546,21 @@ class CodeManager:
 
         errors = []
 
+        # ── 检查0：重复定义（类内方法或模块级函数重名 → 腐化特征）──
+        from collections import Counter as _Counter
+        def_names: list = []
+        def _collect_defs(scope):
+            for node in scope:
+                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                    def_names.append(node.name)
+                elif isinstance(node, ast.ClassDef):
+                    _collect_defs(node.body)
+        _collect_defs(tree.body)
+        dup_defs = {name: cnt for name, cnt in _Counter(def_names).items() if cnt > 1}
+        if dup_defs:
+            dup_str = ", ".join(f"{k}×{v}" for k, v in sorted(dup_defs.items()))
+            errors.append(f"重复定义: {dup_str} (同一名字只能定义一次)")
+
         # ── 检查1：不可达代码（return/break/continue/raise 后的同级语句）──
         for node in ast.walk(tree):
             for body_attr in ('body', 'orelse', 'finalbody'):

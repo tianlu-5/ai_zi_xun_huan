@@ -366,6 +366,59 @@ class ContractSuite:
                 if verbose:
                     print(f"  ❌ {m}::(meta)模块名校验: 磁盘上不存在")
 
+        # 元合约：全仓重复定义扫描（反腐化）—— 同一名字的 def 出现多次 = 腐化特征，
+        #    这类污染会让"后定义覆盖先定义"，且是 daemon 反复改同一文件的典型征兆。
+        found_dup = False
+        import ast as _ast
+        from collections import Counter as _C
+        evolver_dir = _PROJECT_ROOT / "evolver"
+        for pyf in sorted(evolver_dir.glob("*.py")):
+            if pyf.name == "__init__.py":
+                continue
+            try:
+                tree = _ast.parse(pyf.read_text(encoding="utf-8"))
+            except Exception:
+                continue
+            # 按作用域收集：模块级函数一个区间，每个类一个区间（类内方法归本类）。
+            #   跨类的同名方法不算重复；仅同一作用域内出现重名定义才算腐化。
+            scope_chunks: List[List[Optional[str]]] = [[]]
+
+            def _collect_scope(nodes, buf):
+                for node in nodes:
+                    if isinstance(node, (_ast.FunctionDef, _ast.AsyncFunctionDef)):
+                        buf.append(node.name)
+                    elif isinstance(node, _ast.ClassDef):
+                        sub: list = []
+                        _collect_scope(node.body, sub)
+                        scope_chunks.append(sub)  # 每个类独立成区间
+
+            for node in tree.body:
+                if isinstance(node, _ast.ClassDef):
+                    _collect_scope(node.body, scope_chunks[-1])
+                    scope_chunks.append([])  # 新类区间
+                else:
+                    _collect_scope([node], scope_chunks[-1])
+
+            dups = []
+            for chunk in scope_chunks:
+                cnt: dict = {}
+                for n in chunk:
+                    cnt[n] = cnt.get(n, 0) + 1
+                for n, c in cnt.items():
+                    if n is not None and c > 1:
+                        dups.append(f"{n}×{c}")
+            if dups:
+                found_dup = True
+                report.failed += 1
+                report.details.append(ContractResult(
+                    module=pyf.stem, name="(meta)重复定义扫描", passed=False,
+                    message=f"检测到重复方法定义: {', '.join(dups)}",
+                ))
+                if verbose:
+                    print(f"  ❌ {pyf.stem}::(meta)重复定义扫描: {', '.join(dups)}")
+        if not found_dup and verbose:
+            print(f"  ✅ (meta)全仓重复定义扫描: 无重复")
+
         for entry in _CONTRACTS:
             # 兼容 3-tuple（旧格式）和 4-tuple（新格式含 tier）
             if len(entry) == 4:

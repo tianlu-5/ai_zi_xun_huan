@@ -169,14 +169,8 @@ class VeilDetector:
     def _process_text_lines(self, lines: List[str], threshold: float) -> List[VeilObservation]:
         return [self.detect(line.strip(), threshold) for line in lines if self._is_valid_text(line.strip())]
 
-    def _process_text_lines(self, lines: List[str], threshold: float) -> List[VeilObservation]:
-        return [self.detect(line.strip(), threshold) for line in lines if self._is_valid_text(line.strip())]
-
     def _is_valid_text(self, text: str) -> bool:
         return len(text.strip()) >= 30 and not text.strip().endswith('...') and not text.strip().endswith('？')
-
-    def detect_file(self, filepath: str, threshold: float = 0.85) -> List[VeilObservation]:
-        return self._process_file(filepath, threshold)
 
     # ========== 锚点脱敏屏障 ==========
 
@@ -288,30 +282,6 @@ class VeilDetector:
         self._input_log.append(entry)
         if len(self._input_log) % 10 == 0:
             self._flush_input_log()
-
-    @classmethod
-    def _flush_input_log(cls):
-        try:
-            cls._INPUT_LOG_FILE.parent.mkdir(exist_ok=True)
-            with open(cls._INPUT_LOG_FILE, "w", encoding="utf-8") as f:
-                json.dump(cls._input_log[-1000:], f, ensure_ascii=False)
-        except Exception:
-            pass
-
-    @classmethod
-    def get_input_stats(cls) -> Dict[str, Any]:
-        if not cls._input_log and cls._INPUT_LOG_FILE.exists():
-            try:
-                with open(cls._INPUT_LOG_FILE, "r", encoding="utf-8") as f:
-                    cls._input_log = json.load(f)
-            except Exception:
-                pass
-        total = sum(e.get("chars", 0) for e in cls._input_log)
-        return {
-            "total_records": len(cls._input_log),
-            "total_chars": total,
-            "recent_10": cls._input_log[-10:],
-        }
 
     @classmethod
     def _flush_input_log(cls):

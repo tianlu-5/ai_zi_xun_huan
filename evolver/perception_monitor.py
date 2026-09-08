@@ -476,18 +476,6 @@ class PerceptionMonitor:
             "health": health_data
         }
 
-    def _format_snapshot(self, energy_data: Dict[str, Any], health_data: Dict[str, Any]) -> Dict[str, Any]:
-        return {
-            "energy": energy_data,
-            "health": health_data
-        }
-
-    def _format_snapshot(self, energy_data: Dict[str, Any], health_data: Dict[str, Any]) -> Dict[str, Any]:
-        return {
-            "energy": energy_data,
-            "health": health_data
-        }
-
     def print_status(self):
         """打印当前状态"""
         stats = self._get_stats()
