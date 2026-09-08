@@ -489,8 +489,9 @@ class InteractiveCLI:
             print("⏳ 初始化认知架构模块...")
             evolver = self._get_evolver()
             self.daemon = _make_daemon(evolver)
-            self.daemon_thread = threading.Thread(target=self.daemon._daemon_loop, daemon=True)
-            self.daemon_thread.start()
+            # 统一走 AutonomousDaemon.start()：正确设置 _thread / daemon_protection，
+            # 使 daemon status 能反映真实运行状态（此前裸 threading.Thread 绕过导致 status 永远「未启动」）
+            self.daemon.start()
             print("🚀 AutonomousDaemon 已启动（后台线程，无人值守）")
         elif sub == "stop":
             if self.daemon:
