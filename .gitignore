@@ -1,0 +1,46 @@
+# ========== Runtime / Self-evolution artifacts ==========
+evolver/branches/
+logs/
+backups/
+_dist_output/
+evolver/memory/
+
+# ========== Python ==========
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+*.egg
+dist/
+build/
+
+# ========== Env / Secrets ==========
+.env
+.env.local
+.env.prod
+*.key
+*.pem
+
+# ========== Large runtime data (regenerable) ==========
+evolver/evolution_history.json
+evolver/daemon_log.json
+evolver/daemon_log_*.json
+evolver/error_reflection.json
+evolver/benchmark_history.json
+evolver/l3_snapshots.json
+evolver/model_profile.json
+evolver/reflection_reports.json
+evolver/modification_blacklist.json
+evolver/iter_stats.json
+evolver/iter_stats_*.json
+
+# ========== OS / Editor ==========
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.vscode/
+.idea/

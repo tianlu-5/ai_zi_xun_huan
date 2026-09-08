@@ -1,0 +1,20 @@
+# 豆包自迭代AI系统 - Python依赖
+
+# ===== API模式 (火山方舟) =====
+volcengine-python-sdk[ark]>=1.0.0
+openai>=1.0.0
+requests>=2.28.0
+
+# ===== Web模式 (豆包网页版自动化) =====
+playwright>=1.40.0
+
+# ===== 本地模式 (Ollama桌面智能体) =====
+# Ollama HTTP API 客户端
+ollama>=0.3.0
+# 桌面自动化 (键鼠)
+pyautogui>=0.9.54
+pynput>=1.7.6
+# 语音识别 (本地离线 Whisper)
+faster-whisper>=1.0.0
+sounddevice>=0.4.6
+numpy>=1.24.0

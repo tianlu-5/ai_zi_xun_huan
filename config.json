@@ -1,0 +1,45 @@
+{
+  "CLIENT_MODE": "local",
+  "JIYUAN_MODEL": "deepseek-v4-flash",
+  "OLLAMA_MODEL": "qwen2.5-coder:7b-instruct",
+  "LMSTUDIO_MODEL": "qwen2.5-coder:7b-instruct",
+  "OLLAMA_KEEP_ALIVE": "0",
+  "AUTO_APPLY_MODIFICATIONS": true,
+  "stage_switch": {
+    "stage_0_safety": true,
+    "stage_0_5_param_linkage": true,
+    "stage_0_5_perception": true,
+    "stage_1_meta_drive": true,
+    "stage_1_5_l3_metacog": true,
+    "stage_2_derive_objective": true,
+    "stage_2_2_local_entropy": true,
+    "stage_2_5_veil_check": false,
+    "stage_2_5_sandbox": true,
+    "stage_3_self_iteration": true,
+    "stage_3_2_reflection": true,
+    "stage_3_2_motive_mining": true,
+    "stage_3_3_model_profile": true,
+    "stage_4_drift_check": true,
+    "stage_5_entropy_buffer": true,
+    "stage_6_seo_eval": true,
+    "stage_7_silence": true,
+    "stage_4_5_drift_silence_link": true,
+    "stage_5_5_threshold_tune": true,
+    "stage_8_evolution": true,
+    "stage_8_5_validation": true
+  },
+  "ple_manifest": {
+    "version": 1,
+    "generated_at": "2026-09-08T12:01:39.839329",
+    "files": {
+      "evolver/self_evolver.py": "350abc592175568cd18fe7c604d2ce59493f0838197da15593d10b2e0034b6cf",
+      "evolver/autonomous_daemon.py": "1a484cc7cdb2ce2a0080f102f69d650ffb691ab0ede5f64e20e25c696c1d5aa1",
+      "evolver/ollama_client.py": "7b2b993edd357cf0c1c467c051c8840feed315c1e5776088ea17ea747b55e218",
+      "evolver/doubao_client.py": "6b73ccb18a0266f4079307733349f464abb82fc77b9af9925d85655d802766ef",
+      "evolver/modification_parser.py": "a8f32c55d6dd47320476e33d9ee725f4ab3fd982cef4d993bc94ee79aca76b9e",
+      "evolver/code_manager.py": "c205009cd482c9b6ab832167c46a6f31c0000ebffd4e3f1591e382afebe63369",
+      "config.py": "0a818aa041abb0ce528f72c6a8646ecc37ccfe7ba62e2c01af7ca2aa18090e2e"
+    },
+    "manifest_signature": "bbd7571bc6785238ef29a7906b195e5b387d8ed9c5d9f17d9c9322b513546c3c"
+  }
+}
