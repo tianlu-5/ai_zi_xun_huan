@@ -70,126 +70,6 @@ class HypothesisDecoupler:
             log.error(f"Failed to write event log: {e}")
 
     def record_failure_snapshot(self, snapshot: Dict[str, Any]) -> None:
-        if not isinstance(snapshot, dict):
-            raise ValueError("Invalid snapshot format")
-        self._failure_snapshots.append(snapshot)
-        try:
-            import json as _json
-            self._snapshot_log_file.parent.mkdir(parents=True, exist_ok=True)
-            with open(self._snapshot_log_file, "a", encoding="utf-8") as f:
-                f.write(_json.dumps(snapshot, ensure_ascii=False) + "\n")
-        except Exception as e:
-            log.error(f"Failed to write snapshot log: {e}")
-
-        count = len(self._failure_snapshots)
-        if count >= 5:
-            self._print_snapshot_summary()
-
-    def record_intermediate_failure(self, iteration_id: int, category: str, issues: List[str]) -> None:
-        if not isinstance(iteration_id, int) or not isinstance(category, str) or not isinstance(issues, list):
-            raise ValueError("Invalid input parameters")
-        evt = {
-            "iteration_id": iteration_id,
-            "category": category,
-            "issues": issues.copy()
-        }
-        self._intermediate_fail_events.append(evt)
-        self._trim_intermediate_fail_events()
-
-    def _trim_intermediate_fail_events(self) -> None:
-        if len(self._intermediate_fail_events) > 40:
-            self._intermediate_fail_events = self._intermediate_fail_events[-40:]
-
-    def _write_event_log(self, event: Dict[str, Any], log_file: Path) -> None:
-        try:
-            import json as _json
-            log_file.parent.mkdir(parents=True, exist_ok=True)
-            with open(log_file, "a", encoding="utf-8") as f:
-                f.write(_json.dumps(event, ensure_ascii=False) + "\n")
-        except Exception as e:
-            log.error(f"Failed to write event log: {e}")
-
-        count = len(event_list)
-        if count >= 5:
-            self._print_snapshot_summary()
-
-    def record_failure_snapshot(self, snapshot: Dict[str, Any]) -> None:
-        self._record_event(snapshot, self._failure_snapshots, self._snapshot_log_file)
-
-    def record_intermediate_failure(self, iteration_id: int, category: str, issues: List[str]) -> None:
-        evt = {
-            "iteration_id": iteration_id,
-            "category": category,
-            "issues": issues.copy()
-        }
-        self._record_event(evt, self._intermediate_fail_events, self._snapshot_log_file)
-
-    def _trim_intermediate_fail_events(self) -> None:
-        if len(self._intermediate_fail_events) > 40:
-            self._intermediate_fail_events = self._intermediate_fail_events[-40:]
-
-    def _write_event_log(self, event: Dict[str, Any], log_file: Path) -> None:
-        try:
-            import json as _json
-            log_file.parent.mkdir(parents=True, exist_ok=True)
-            with open(log_file, "a", encoding="utf-8") as f:
-                f.write(_json.dumps(event, ensure_ascii=False) + "\n")
-        except Exception as e:
-            log.error(f"Failed to write event log: {e}")
-
-        count = len(event_list)
-        if count >= 5:
-            self._print_snapshot_summary()
-
-    def record_failure_snapshot(self, snapshot: Dict[str, Any]) -> None:
-        if not isinstance(snapshot, dict):
-            raise ValueError("Invalid snapshot format")
-        self._failure_snapshots.append(snapshot)
-        try:
-            import json as _json
-            self._snapshot_log_file.parent.mkdir(parents=True, exist_ok=True)
-            with open(self._snapshot_log_file, "a", encoding="utf-8") as f:
-                f.write(_json.dumps(snapshot, ensure_ascii=False) + "\n")
-        except Exception as e:
-            log.error(f"Failed to write snapshot log: {e}")
-
-        count = len(self._failure_snapshots)
-        if count >= 5:
-            self._print_snapshot_summary()
-
-    def record_intermediate_failure(self, iteration_id: int, category: str, issues: List[str]) -> None:
-        if not isinstance(iteration_id, int) or not isinstance(category, str) or not isinstance(issues, list):
-            raise ValueError("Invalid input parameters")
-        if not isinstance(iteration_id, int) or not isinstance(category, str) or not isinstance(issues, list):
-            raise ValueError("Invalid input parameters")
-        evt = {
-            "iteration_id": iteration_id,
-            "category": category,
-            "issues": issues.copy()
-        }
-        self._record_event(evt, self._intermediate_fail_events, self._snapshot_log_file)
-
-    def _trim_intermediate_fail_events(self) -> None:
-        if len(self._intermediate_fail_events) > 40:
-            self._intermediate_fail_events = self._intermediate_fail_events[-40:]
-
-    def _record_failure_or_intermediate_event(self, event: Dict[str, Any], event_list: List[Dict[str, Any]], log_file: Path) -> None:
-        self._record_event(event, event_list, log_file)
-
-    def _log_intermediate_failure(self, iteration_id: int, category: str, issues: List[str]) -> None:
-        evt = {
-            "iteration_id": iteration_id,
-            "category": category,
-            "issues": issues.copy()
-        }
-        self._intermediate_fail_events.append(evt)
-        self._trim_intermediate_fail_events()
-
-    def _trim_intermediate_fail_events(self) -> None:
-        if len(self._intermediate_fail_events) > 40:
-            self._intermediate_fail_events = self._intermediate_fail_events[-40:]
-
-    def record_failure_snapshot(self, snapshot: Dict[str, Any]) -> None:
         """记录失败快照
         :param snapshot: 失败快照字典
         :type snapshot: Dict[str, Any]
@@ -211,14 +91,13 @@ class HypothesisDecoupler:
             self._print_snapshot_summary()
 
     def record_intermediate_failure(self, iteration_id: int, category: str, issues: List[str]) -> None:
-        """记录中间失败事件
+        """记录流水线中间重试失败事件
         :param iteration_id: 迭代 ID
-        :type iteration_id: int
         :param category: 失败类别
-        :type category: str
         :param issues: 具体问题列表
-        :type issues: List[str]
         """
+        if not isinstance(iteration_id, int) or not isinstance(category, str) or not isinstance(issues, list):
+            raise ValueError("Invalid input parameters")
         evt = {
             "iteration_id": iteration_id,
             "category": category,
@@ -226,6 +105,10 @@ class HypothesisDecoupler:
         }
         self._intermediate_fail_events.append(evt)
         self._trim_intermediate_fail_events()
+
+    def _trim_intermediate_fail_events(self) -> None:
+        if len(self._intermediate_fail_events) > 40:
+            self._intermediate_fail_events = self._intermediate_fail_events[-40:]
 
     def _record_failure_or_intermediate_event(self, event: Dict[str, Any], event_list: List[Dict[str, Any]], log_file: Path) -> None:
         if not isinstance(event, dict):
@@ -242,102 +125,6 @@ class HypothesisDecoupler:
         count = len(event_list)
         if count >= 5:
             self._print_snapshot_summary()
-
-    def record_intermediate_failure(self, iteration_id: int, category: str, issues: List[str]) -> None:
-        """记录流水线中间重试失败事件
-        :param iteration_id: 迭代 ID
-        :param category: 失败类别
-        :param issues: 具体问题列表
-        """
-        evt = {
-            "iteration_id": iteration_id,
-            "category": category,
-            "issues": issues.copy()
-        }
-        self._intermediate_fail_events.append(evt)
-        self._trim_intermediate_fail_events()
-
-    def record_intermediate_failure(self, iteration_id: int, category: str, issues: List[str]) -> None:
-        if not isinstance(iteration_id, int) or not isinstance(category, str) or not isinstance(issues, list):
-            raise ValueError("Invalid input parameters")
-        """记录流水线中间重试失败事件
-        :param iteration_id: 迭代 ID
-        :param category: 失败类别
-        :param issues: 具体问题列表
-        """
-        evt = {
-            "iteration_id": iteration_id,
-            "category": category,
-            "issues": issues.copy()
-        }
-        self._intermediate_fail_events.append(evt)
-        self._trim_intermediate_fail_events()
-
-    def _trim_intermediate_fail_events(self) -> None:
-        if len(self._intermediate_fail_events) > 40:
-            self._intermediate_fail_events = self._intermediate_fail_events[-40:]
-
-    def record_intermediate_failure(self, iteration_id: int, category: str, issues: List[str]) -> None:
-        if not isinstance(iteration_id, int) or not isinstance(category, str) or not isinstance(issues, list):
-            raise ValueError("Invalid input parameters")
-        evt = {
-            "iteration_id": iteration_id,
-            "category": category,
-            "issues": issues.copy()
-        }
-        self._intermediate_fail_events.append(evt)
-        self._trim_intermediate_fail_events()
-
-    def _trim_intermediate_fail_events(self) -> None:
-        if len(self._intermediate_fail_events) > 40:
-            self._intermediate_fail_events = self._intermediate_fail_events[-40:]
-
-    def record_intermediate_failure(self, iteration_id: int, category: str, issues: List[str]) -> None:
-        if not isinstance(iteration_id, int) or not isinstance(category, str) or not isinstance(issues, list):
-            raise ValueError("Invalid input parameters")
-        evt = {
-            "iteration_id": iteration_id,
-            "category": category,
-            "issues": issues.copy()
-        }
-        self._intermediate_fail_events.append(evt)
-        self._trim_intermediate_fail_events()
-
-    def _log_failure_snapshot(self, snapshot: Dict[str, Any]) -> None:
-        self._record_failure_or_intermediate_event(snapshot, self._failure_snapshots, self._snapshot_log_file)
-
-    def _log_intermediate_failure(self, iteration_id: int, category: str, issues: List[str]) -> None:
-        evt = {
-            "iteration_id": iteration_id,
-            "category": category,
-            "issues": issues.copy()
-        }
-        self._record_failure_or_intermediate_event(evt, self._intermediate_fail_events, self._snapshot_log_file)
-
-    def _record_failure_or_intermediate_event(self, event: Dict[str, Any], event_list: List[Dict[str, Any]], log_file: Path) -> None:
-        event_list.append(event)
-        try:
-            import json as _json
-            log_file.parent.mkdir(parents=True, exist_ok=True)
-            with open(log_file, "a", encoding="utf-8") as f:
-                f.write(_json.dumps(event, ensure_ascii=False) + "\n")
-        except Exception as e:
-            log.error(f"Failed to write event log: {e}")
-
-        count = len(event_list)
-        if count >= 5:
-            self._print_snapshot_summary()
-    def record_intermediate_failure(self, iteration_id: int, category: str, issues: List[str]) -> None:
-        if not isinstance(iteration_id, int) or not isinstance(category, str) or not isinstance(issues, list):
-            raise ValueError("Invalid input parameters")
-        evt = {
-            "iteration_id": iteration_id,
-            "category": category,
-            "issues": issues.copy()
-        }
-        self._intermediate_fail_events.append(evt)
-        self._trim_intermediate_fail_events()
-
 
     def _print_snapshot_summary(self) -> None:
         snaps = self._failure_snapshots
@@ -749,94 +536,6 @@ class HypothesisDecoupler:
             print(f"    {drift['reason'] or '未触发漂移'}")
 
         print(f"  ════════════════════════════════════════════\n")
-    def improve_code_quality(self) -> None:
-        """对长期未修改的模块进行代码质量改进，包括类型注解、文档字符串、异常处理"""
-        # 示例改进：为 record_failure_snapshot 方法添加类型注解和文档字符串
-    def _record_event(self, event: Dict[str, Any], event_list: List[Dict[str, Any]], log_file: Path) -> None:
-        self._write_event_log(event, log_file)
-
-    def _write_event_log(self, event: Dict[str, Any], log_file: Path) -> None:
-        try:
-            import json as _json
-            log_file.parent.mkdir(parents=True, exist_ok=True)
-            with open(log_file, "a", encoding="utf-8") as f:
-                f.write(_json.dumps(event, ensure_ascii=False) + "\n")
-        except Exception as e:
-            log.error(f"Failed to write event log: {e}")
-
-    def record_failure_snapshot(self, snapshot: Dict[str, Any]) -> None:
-        self._record_event(snapshot, self._failure_snapshots, self._snapshot_log_file)
-
-    def record_intermediate_failure(self, iteration_id: int, category: str, issues: List[str]) -> None:
-        evt = {
-            "iteration_id": iteration_id,
-            "category": category,
-            "issues": issues.copy()
-        }
-        self._record_event(evt, self._intermediate_fail_events, self._snapshot_log_file)
-
-    def _trim_intermediate_fail_events(self) -> None:
-        if len(self._intermediate_fail_events) > 40:
-            self._intermediate_fail_events = self._intermediate_fail_events[-40:]
-
-    def _record_event(self, event: Dict[str, Any], event_list: List[Dict[str, Any]], log_file: Path) -> None:
-        if not isinstance(event, dict):
-            raise ValueError("Invalid event format")
-        event_list.append(event)
-        try:
-            import json as _json
-            log_file.parent.mkdir(parents=True, exist_ok=True)
-            with open(log_file, "a", encoding="utf-8") as f:
-                f.write(_json.dumps(event, ensure_ascii=False) + "\n")
-        except Exception as e:
-            log.error(f"Failed to write event log: {e}")
-
-        count = len(event_list)
-        if count >= 5:
-            self._print_snapshot_summary()
-
-        # 示例改进：为 record_intermediate_failure 方法添加类型注解和文档字符串
-        def record_intermediate_failure(self, iteration_id: int, category: str, issues: List[str]) -> None:
-            """记录流水线中间重试失败事件
-            :param iteration_id: 迭代 ID
-            :param category: 失败类别
-            :param issues: 具体问题列表
-            """
-            evt = {
-                "iteration_id": iteration_id,
-                "category": category,
-                "issues": issues.copy()
-            }
-            self._intermediate_fail_events.append(evt)
-            self._trim_intermediate_fail_events()
-
-        def _trim_intermediate_fail_events(self) -> None:
-            if len(self._intermediate_fail_events) > 40:
-                self._intermediate_fail_events = self._intermediate_fail_events[-40:]
-
-    def optimize_performance(self) -> None:
-        """优化代码性能和可读性，识别并消除不必要的计算
-        """
-        """优化代码性能和可读性，识别并消除不必要的计算"""
-        # 清理不必要的缓存
-        self._failure_snapshots.clear()
-        self._intermediate_fail_events.clear()
-
-        # 重置日志文件
-        self._snapshot_log_file.unlink(missing_ok=True)
-        self._snapshot_log_file.parent.mkdir(parents=True, exist_ok=True)
-
-        # 重置历史记录
-        self.history_file.unlink(missing_ok=True)
-        self.daemon_log_file.unlink(missing_ok=True)
-
-        # 重置日志记录器
-        log.handlers.clear()
-        log.addHandler(logging.FileHandler(self.daemon_log_file, encoding='utf-8'))
-        log.setLevel(logging.WARNING)
-
-        log.info("Performance optimization completed")
-
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.WARNING)

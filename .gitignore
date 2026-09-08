@@ -4,6 +4,7 @@ logs/
 backups/
 _dist_output/
 evolver/memory/
+evolver/vectors/
 
 # ========== Python ==========
 __pycache__/

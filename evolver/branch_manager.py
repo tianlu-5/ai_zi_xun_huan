@@ -445,97 +445,32 @@ class BranchManager:
                     last_modified = datetime.fromisoformat(b['last_modified'])
                     time_difference = (datetime.now() - last_modified).days
                     if time_difference > 365:
-                        self.logger.info(f'Improving code quality for branch {b.get('name', '')} due to inactivity')
-                        # 进行代码质量改进的逻辑
+                        name = b.get('name', '')
+                        self.logger.info(f'Improving code quality for branch {name} due to inactivity')
                         b['last_modified'] = datetime.now().isoformat()
         except Exception as e:
             self.logger.error(f'Error improving code quality: {str(e)}')
+
     def optimize_performance(self) -> None:
         """优化代码性能和可读性，识别并消除不必要的计算"""
         try:
-            branches_to_optimize = self._filter_inactive_branches()
-            for b in branches_to_optimize:
+            for b in self._filter_inactive_branches():
                 self._update_last_modified(b)
         except Exception as e:
             self.logger.error(f'Error optimizing performance: {str(e)}')
 
     def _update_last_modified(self, branch: Dict) -> None:
-        if self._is_inactive(branch):
-            self.logger.info(f'Optimizing performance for branch {branch.get('name', '')} due to inactivity')
-            branch['last_modified'] = datetime.now().isoformat()
-
-    def _is_inactive(self, branch: Dict) -> bool:
-        return (datetime.now() - datetime.fromisoformat(branch['last_modified'])).days > 365
-
-    def _filter_inactive_branches(self) -> List[Dict]:
-        return [b for b in self.branches if isinstance(b, dict) and 'last_modified' in b]
-
-    def _get_last_modified(self, branch: Dict) -> datetime:
-        return datetime.fromisoformat(branch['last_modified'])
-
-    def _is_inactive(self, branch: Dict) -> bool:
-        return (datetime.now() - datetime.fromisoformat(branch['last_modified'])).days > 365
-
-    def _filter_inactive_branches(self) -> List[Dict]:
-        return [b for b in self.branches if isinstance(b, dict) and 'last_modified' in b]
-
-    def _get_last_modified(self, branch: Dict) -> datetime:
-        return datetime.fromisoformat(branch['last_modified'])
-
-    def _filter_inactive_branches(self) -> List[Dict]:
-        return [b for b in self.branches if isinstance(b, dict) and 'last_modified' in b]
-
-    def _get_last_modified(self, branch: Dict) -> datetime:
-        return datetime.fromisoformat(branch['last_modified'])
-
-    def _is_inactive(self, last_modified: datetime) -> bool:
-        return (datetime.now() - last_modified).days > 365
-
-    def _is_inactive(self, branch: Dict) -> bool:
-        last_modified = datetime.fromisoformat(branch['last_modified'])
-        return (datetime.now() - last_modified).days > 365
-
-    def _filter_inactive_branches(self) -> List[Dict]:
-        return [b for b in self.branches if isinstance(b, dict) and 'last_modified' in b]
-
-    def _get_last_modified(self, branch: Dict) -> datetime:
-        return datetime.fromisoformat(branch['last_modified'])
-
-    def _filter_inactive_branches(self) -> List[Dict]:
-        return [b for b in self.branches if isinstance(b, dict) and 'last_modified' in b]
-
-    def _get_last_modified(self, branch: Dict) -> datetime:
-        return datetime.fromisoformat(branch['last_modified'])
-
-    def _is_inactive(self, last_modified: datetime) -> bool:
-        return (datetime.now() - last_modified).days > 365
-
-    def _update_last_modified(self, branch: Dict) -> None:
-        last_modified = datetime.fromisoformat(branch['last_modified'])
-        if (datetime.now() - last_modified).days > 365:
-            self.logger.info(f'Optimizing performance for branch {branch.get('name', '')} due to inactivity')
-            branch['last_modified'] = datetime.now().isoformat()
-
-    def _update_last_modified(self, branch: Dict) -> None:
-        last_modified = datetime.fromisoformat(branch['last_modified'])
-        if (datetime.now() - last_modified).days > 365:
-            self.logger.info(f'Optimizing performance for branch {branch.get('name', '')} due to inactivity')
-            branch['last_modified'] = datetime.now().isoformat()
-
-    def _filter_inactive_branches(self) -> List[Dict]:
-        return [b for b in self.branches if isinstance(b, dict) and 'last_modified' in b]
-
-    def _update_last_modified(self, branch: Dict) -> None:
-        last_modified = datetime.fromisoformat(branch['last_modified'])
-        if (datetime.now() - last_modified).days > 365:
-            self.logger.info(f'Optimizing performance for branch {branch.get('name', '')} due to inactivity')
-            branch['last_modified'] = datetime.now().isoformat()
-
-    def _update_last_modified(self, branch: Dict) -> None:
         """更新分支的最后修改时间"""
-        last_modified = datetime.fromisoformat(branch['last_modified'])
-        time_difference = (datetime.now() - last_modified).days
-        if time_difference > 365:
-            self.logger.info(f'Optimizing performance for branch {branch.get('name', '')} due to inactivity')
+        if self._is_inactive(branch):
+            name = branch.get('name', '')
+            self.logger.info(f'Optimizing performance for branch {name} due to inactivity')
             branch['last_modified'] = datetime.now().isoformat()
-# Deprecated function _legacy_merge has been removed and commented out. (Format adjusted)
+
+    def _is_inactive(self, branch: Dict) -> bool:
+        return (datetime.now() - datetime.fromisoformat(branch['last_modified'])).days > 365
+
+    def _filter_inactive_branches(self) -> List[Dict]:
+        return [b for b in self.branches if isinstance(b, dict) and 'last_modified' in b]
+
+    def _get_last_modified(self, branch: Dict) -> datetime:
+        return datetime.fromisoformat(branch['last_modified'])
